@@ -304,10 +304,11 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
 /* ===== Featured work: edit this list =====
    photo: file name of an image in this folder (optional; shows a placeholder if empty)
    w, h: the photo's width and height in pixels, so wide and tall photos keep their shape
+   when: year-month (e.g. "2025-07") used to show the newest work first; cards without it go last
    link: where the card goes when clicked (optional) */
 const FEATURED = [
-  {title:"Jacquemus - Tesher", detail:"Music video · June 2023", date:"", photo:"fw-jacquemus.jpg", w:1800, h:1066, link:"https://www.instagram.com/p/Ct9RnPox1gc/"},
-  {title:"It Was All A Dream Tour - Karan Aujla", detail:"Tour · July 2025", date:"", photo:"fw-aujla-tour.jpg", w:1800, h:1201, link:""},
+  {title:"Jacquemus - Tesher", detail:"Music video · June 2023", when:"2023-06", date:"", photo:"fw-jacquemus.jpg", w:1800, h:1066, link:"https://www.instagram.com/p/Ct9RnPox1gc/"},
+  {title:"It Was All A Dream Tour - Karan Aujla", detail:"Tour · July 2025", when:"2025-07", date:"", photo:"fw-aujla-tour.jpg", w:1800, h:1201, link:"https://www.instagram.com/p/DMahazbxmUI/"},
   {title:"Project title", detail:"Role · Production or artist", date:"Jun 2026", photo:"", link:""},
   {title:"Project title", detail:"Role · Production or artist", date:"Mar 2026", photo:"", link:""},
   {title:"Project title", detail:"Role · Production or artist", date:"Dec 2025", photo:"", link:""}
@@ -315,7 +316,8 @@ const FEATURED = [
 (function(){
   const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const track = document.getElementById("fwTrack");
-  track.innerHTML = FEATURED.map(f => {
+  const items = FEATURED.slice().sort((x, y) => (y.when || "").localeCompare(x.when || ""));
+  track.innerHTML = items.map(f => {
     const r = (f.photo && f.w && f.h) ? f.w / f.h : 4/5;
     const media = f.photo
       ? `<div class="fw-photo"><img src="${esc(f.photo)}" alt="${esc(f.title)}" loading="lazy"></div>`
