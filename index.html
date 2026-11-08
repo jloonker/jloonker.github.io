@@ -119,6 +119,27 @@ section{padding:clamp(72px,10vw,136px) 0;scroll-margin-top:72px}
 .vid:hover .vid-meta span{color:var(--cobalt)}
 @media (max-width:760px){.vids{grid-template-columns:1fr}.vid .ph{aspect-ratio:16/10}.vid-media{aspect-ratio:4/5}}
 
+/* Featured work carousel */
+.fw-head{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(20px,3vw,40px);align-items:end;margin-bottom:clamp(36px,5vw,64px)}
+.fw-head .label{grid-column:1 / span 3;align-self:start;padding-top:12px}
+.fw-head h2{grid-column:4 / span 7;font-size:clamp(44px,6.4vw,96px)}
+.fw-nav{grid-column:11 / span 2;display:flex;justify-content:flex-end;gap:10px}
+.fw-btn{width:52px;height:52px;display:grid;place-items:center;background:transparent;border:1.5px solid var(--ink);color:var(--ink);font-size:20px;cursor:pointer;transition:background .2s,color .2s,opacity .2s}
+.fw-btn:hover:not([disabled]){background:var(--ink);color:var(--paper)}
+.fw-btn[disabled]{opacity:.25;cursor:default}
+.fw-track{display:flex;gap:clamp(14px,2vw,24px);overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px;overscroll-behavior-x:contain}
+.fw-track::-webkit-scrollbar{display:none}
+.fw-card{flex:0 0 calc((100% - 2 * clamp(14px,2vw,24px)) / 3.25);scroll-snap-align:start;text-decoration:none;display:block}
+.fw-card .ph,.fw-card .vid-media{aspect-ratio:9/14}
+.fw-meta{padding-top:14px;border-bottom:1px solid var(--ink);padding-bottom:12px}
+.fw-meta .fw-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.fw-meta h3{font-size:clamp(20px,2vw,26px);line-height:1.05}
+.fw-meta time{font-size:14px;color:var(--grey);white-space:nowrap;font-variant-numeric:tabular-nums}
+.fw-meta p{margin:6px 0 0;font-size:15px;color:var(--grey)}
+a.fw-card:hover .fw-meta h3{color:var(--cobalt)}
+@media (max-width:800px){.fw-head .label,.fw-head h2{grid-column:1 / -1}.fw-nav{grid-column:1 / -1;justify-content:flex-start}}
+@media (max-width:760px){.fw-card{flex-basis:78%}.fw-card .vid-media{aspect-ratio:4/5}.fw-card .ph{aspect-ratio:4/5}}
+
 /* Workshops */
 .workshops{background:var(--white);border-block:1px solid var(--line)}
 .ws-list{border-top:1px solid var(--ink)}
@@ -189,6 +210,7 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
 
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
+  .fw-track{scroll-behavior:auto}
   .hero h1 .line > span{animation:none}
   .btn,.btn .arr{transition:none}
 }
@@ -202,6 +224,7 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
     <ul>
       <li><a href="#about">About</a></li>
       <li><a href="#videos">Videos</a></li>
+      <li><a href="#work">Featured work</a></li>
       <li><a href="#workshops">Workshops</a></li>
       <li><a href="#join">Mailing list</a></li>
     </ul>
@@ -257,6 +280,59 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
     </div>
   </div>
 </section>
+
+<section id="work" class="rule">
+  <div class="wrap">
+    <div class="fw-head">
+      <div class="label">Credits</div>
+      <h2>Featured work.</h2>
+      <div class="fw-nav">
+        <button class="fw-btn" id="fwPrev" type="button" aria-label="Previous">←</button>
+        <button class="fw-btn" id="fwNext" type="button" aria-label="Next">→</button>
+      </div>
+    </div>
+    <div class="fw-track" id="fwTrack" tabindex="0" aria-label="Featured work"></div>
+  </div>
+</section>
+<script>
+/* ===== Featured work: edit this list =====
+   video: file name of a clip in this folder (optional; shows a placeholder if empty)
+   poster: still image for the clip (optional)
+   link: where the card goes when clicked (optional) */
+const FEATURED = [
+  {title:"Project title", detail:"Role · Production or artist", date:"Oct 2026", video:"", poster:"", link:""},
+  {title:"Project title", detail:"Role · Production or artist", date:"Aug 2026", video:"", poster:"", link:""},
+  {title:"Project title", detail:"Role · Production or artist", date:"Jun 2026", video:"", poster:"", link:""},
+  {title:"Project title", detail:"Role · Production or artist", date:"Mar 2026", video:"", poster:"", link:""},
+  {title:"Project title", detail:"Role · Production or artist", date:"Dec 2025", video:"", poster:"", link:""}
+];
+(function(){
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const track = document.getElementById("fwTrack");
+  track.innerHTML = FEATURED.map(f => {
+    const media = f.video
+      ? `<div class="vid-media"><video class="card-vid" src="${esc(f.video)}"${f.poster?` poster="${esc(f.poster)}"`:""} muted loop playsinline preload="metadata" aria-hidden="true"></video></div>`
+      : `<div class="ph"><span>Video · 9:16</span></div>`;
+    const meta = `<div class="fw-meta"><div class="fw-top"><h3>${esc(f.title)}</h3><time>${esc(f.date)}</time></div><p>${esc(f.detail)}</p></div>`;
+    return f.link ? `<a class="fw-card" href="${esc(f.link)}">${media}${meta}</a>` : `<div class="fw-card">${media}${meta}</div>`;
+  }).join("");
+  const prev = document.getElementById("fwPrev"), next = document.getElementById("fwNext");
+  const step = () => { const c = track.querySelector(".fw-card"); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth; };
+  const update = () => {
+    prev.disabled = track.scrollLeft <= 2;
+    next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+  };
+  prev.addEventListener("click", () => track.scrollBy({left: -step(), behavior: "smooth"}));
+  next.addEventListener("click", () => track.scrollBy({left: step(), behavior: "smooth"}));
+  track.addEventListener("scroll", update, {passive: true});
+  window.addEventListener("resize", update);
+  track.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") { e.preventDefault(); next.click(); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); prev.click(); }
+  });
+  update();
+})();
+</script>
 
 <section id="workshops" class="workshops">
   <div class="wrap">
