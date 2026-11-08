@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jai Dance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..900&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a light editorial magazine spread. Wide expanded headlines,
+   generous white space, a strict 12-column grid, one cobalt accent used sparingly. */
+:root{
+  --paper:#f5f4f0;
+  --white:#ffffff;
+  --ink:#111111;
+  --grey:#6e6c67;
+  --line:#dedbd3;
+  --cobalt:#5b5ef0;
+  --display:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body:"Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);font-stretch:118%;font-weight:800;letter-spacing:-.03em;line-height:.95;margin:0;text-wrap:balance}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.label{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--grey)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:600 15px/1 var(--body);padding:17px 26px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);text-decoration:none;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.btn:hover{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn .arr{transition:transform .2s}
+.btn:hover .arr{transform:translateX(4px)}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+
+/* Media placeholder */
+.ph{position:relative;background:#e9e7e1;border:1px solid var(--line);overflow:hidden;display:grid;place-items:center;color:var(--grey)}
+.ph::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 14px,rgba(17,17,17,.035) 14px 15px)}
+.ph span{position:relative;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:8px 14px;background:var(--paper);border:1px solid var(--line)}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(245,244,240,.9);backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .3s}
+nav.solid{border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;gap:16px}
+.mark{font:800 22px/1 var(--display);font-stretch:118%;letter-spacing:-.03em;text-decoration:none}
+.mark span{color:var(--cobalt)}
+nav ul{display:flex;gap:32px;list-style:none;margin:0;padding:0}
+nav ul a{text-decoration:none;font-size:15px;font-weight:500;color:var(--grey);transition:color .2s}
+nav ul a:hover{color:var(--ink)}
+nav .btn{padding:12px 18px;font-size:14px}
+@media (max-width:800px){nav ul{display:none}}
+
+/* Hero: full-bleed background video with text over it */
+.hero{position:relative;min-height:calc(100svh - 72px);min-height:max(560px,calc(100svh - 72px));display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;color:#fff;background:#1a1a1a}
+.hero-bg{position:absolute;inset:0;z-index:-2}
+.hero-bg video{width:100%;height:100%;object-fit:cover;display:block}
+.hero-bg.ph{border:0;background:#24252a;color:rgba(255,255,255,.6)}
+.hero-bg.ph::before{background:repeating-linear-gradient(135deg,transparent 0 14px,rgba(255,255,255,.04) 14px 15px)}
+.hero-bg.ph span{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.75);place-self:start end;margin:24px}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 60%),linear-gradient(180deg,rgba(0,0,0,.3) 0%,rgba(0,0,0,.2) 40%,rgba(0,0,0,.65) 100%)}
+.hero .wrap{width:100%;padding-top:96px;padding-bottom:clamp(40px,6vw,72px)}
+.hero-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(20px,3vw,40px);align-items:end}
+.hero-copy{grid-column:1 / span 8}
+.hero .label{color:rgba(255,255,255,.8)}
+.hero h1{font-size:clamp(56px,9vw,150px);margin-top:18px}
+.hero h1 .line{display:block;overflow:hidden;padding-bottom:.04em}
+.hero h1 .line > span{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.1,1) both}
+.hero h1 .line:nth-child(2) > span{animation-delay:.08s}
+.hero h1 .line:nth-child(3) > span{animation-delay:.16s}
+.hero h1 em{font-style:normal;color:var(--cobalt)}
+@keyframes rise{from{transform:translateY(105%)}to{transform:none}}
+.hero p.lede{font-size:clamp(18px,1.6vw,21px);max-width:40ch;margin:24px 0 0;color:rgba(255,255,255,.9)}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.hero .btn{background:#fff;border-color:#fff;color:var(--ink)}
+.hero .btn:hover{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.hero .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.8)}
+.hero .btn.ghost:hover{background:#fff;color:var(--ink);border-color:#fff}
+.hero :focus-visible{outline-color:#fff}
+.stats{grid-column:9 / span 4;display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid rgba(255,255,255,.6)}
+.stats div{padding:14px 12px 0 0}
+.stats b{display:block;font:800 clamp(26px,2.6vw,36px)/1 var(--display);font-stretch:118%;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stats small{font-size:13px;color:rgba(255,255,255,.75)}
+@media (max-width:900px){.hero-copy,.stats{grid-column:1 / -1}}
+
+section{padding:clamp(72px,10vw,136px) 0;scroll-margin-top:72px}
+.sec-head{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(20px,3vw,40px);align-items:end;margin-bottom:clamp(36px,5vw,64px)}
+.sec-head .label{grid-column:1 / span 3;align-self:start;padding-top:12px}
+.sec-head h2{grid-column:4 / span 9;font-size:clamp(44px,6.4vw,96px)}
+@media (max-width:800px){.sec-head .label,.sec-head h2{grid-column:1 / -1}}
+.rule{border-top:1px solid var(--line)}
+
+/* About */
+.about-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(20px,3vw,40px)}
+.about-photo{grid-column:1 / span 4}
+.about-photo .ph{aspect-ratio:3/4}
+.about-text{grid-column:6 / span 7}
+.pull{font:700 clamp(28px,3.2vw,44px)/1.12 var(--display);font-stretch:108%;letter-spacing:-.025em;margin:0;text-wrap:balance}
+.about-text p.body{max-width:60ch;color:#3a3936;margin:24px 0 0}
+.draft{display:inline-block;margin-top:24px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--cobalt);border:1px dashed var(--cobalt);padding:5px 10px}
+@media (max-width:860px){.about-photo,.about-text{grid-column:1 / -1}.about-photo{max-width:420px}}
+
+/* Videos */
+.vids{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,24px)}
+.vid{text-decoration:none;display:block}
+.vid .ph{aspect-ratio:9/14;transition:border-color .2s}
+.vid:hover .ph{border-color:var(--ink)}
+.vid-meta{display:flex;justify-content:space-between;align-items:baseline;padding-top:14px;border-bottom:1px solid var(--ink);padding-bottom:12px}
+.vid-meta h3{font-size:clamp(24px,2.4vw,32px)}
+.vid-meta span{font-size:14px;color:var(--grey);transition:color .2s}
+.vid:hover .vid-meta span{color:var(--cobalt)}
+@media (max-width:760px){.vids{grid-template-columns:1fr}.vid .ph{aspect-ratio:16/10}}
+
+/* Workshops */
+.workshops{background:var(--white);border-block:1px solid var(--line)}
+.ws-list{border-top:1px solid var(--ink)}
+.ws{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(16px,3vw,40px);align-items:center;padding:30px 0;border-bottom:1px solid var(--line);transition:background .2s}
+.ws-date{grid-column:1 / span 2;font-family:var(--display);font-stretch:118%;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.ws-date b{display:block;font-size:clamp(44px,4.6vw,64px);font-weight:800;line-height:.9}
+.ws-date span{font-size:15px;font-weight:600;color:var(--grey);letter-spacing:0}
+.ws-main{grid-column:3 / span 6}
+.ws h3{font-size:clamp(26px,2.8vw,38px)}
+.ws-info{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:10px;color:var(--grey);font-size:15px}
+.ws-info span + span::before{content:"·";margin-right:10px}
+.ws-side{grid-column:9 / span 4;display:flex;justify-content:flex-end;align-items:center;gap:24px}
+.price{font:800 30px/1 var(--display);font-stretch:118%;letter-spacing:-.03em;font-variant-numeric:tabular-nums;text-align:right}
+.spots{display:block;font:500 13px/1.3 var(--body);letter-spacing:0;color:var(--grey);margin-top:6px}
+.spots.low{color:var(--cobalt)}
+@media (max-width:860px){.ws-date{grid-column:1 / span 3}.ws-main{grid-column:4 / -1}.ws-side{grid-column:1 / -1;justify-content:space-between}}
+
+/* Join */
+.join{background:var(--cobalt);color:#fff}
+.join-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(20px,3vw,40px);align-items:end}
+.join .label{color:rgba(255,255,255,.7);grid-column:1 / -1}
+.join h2{grid-column:1 / span 7;font-size:clamp(48px,7vw,108px);margin-top:20px}
+.join-form{grid-column:8 / span 5}
+.join-form p{margin:0 0 24px;color:rgba(255,255,255,.85);max-width:40ch}
+.join label{color:rgba(255,255,255,.75)}
+.join input{color:#fff;border-color:rgba(255,255,255,.45)}
+.join input:focus{border-color:#fff}
+.join .btn{background:#fff;border-color:#fff;color:var(--cobalt)}
+.join .btn:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+.join :focus-visible{outline-color:#fff}
+.join .msg.err{color:#fff;text-decoration:underline}
+@media (max-width:860px){.join h2,.join-form{grid-column:1 / -1}}
+
+/* Forms */
+.fields{display:grid;gap:18px}
+label{display:block;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-bottom:4px}
+input{width:100%;font:inherit;font-size:18px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px solid var(--line);padding:10px 0;border-radius:0}
+input:focus{outline:none;border-color:var(--cobalt)}
+.msg{font-size:15px;min-height:1.5em;margin:14px 0 0}
+.msg.err{color:var(--cobalt)}
+
+/* Footer */
+footer{padding:clamp(56px,7vw,96px) 0 32px}
+.foot-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;padding-bottom:40px}
+.foot-top h3{font-size:clamp(26px,2.6vw,36px);max-width:16ch}
+.foot-links{display:flex;gap:48px;flex-wrap:wrap}
+.foot-links ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.foot-links a{text-decoration:none;font-size:16px}
+.foot-links a:hover{color:var(--cobalt)}
+.bigmark{font:800 clamp(64px,17.5vw,260px)/.8 var(--display);font-stretch:125%;letter-spacing:-.05em;margin:0;padding-top:24px;border-top:1px solid var(--ink);white-space:nowrap;overflow:hidden}
+.bigmark span{color:var(--cobalt)}
+.foot-base{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px;font-size:14px;color:var(--grey)}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(17,17,17,.45);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.open{display:flex}
+.sheet{background:var(--paper);width:min(520px,100%);max-height:calc(100% - 32px);overflow:auto;padding:clamp(24px,4vw,40px);position:relative;box-shadow:0 30px 80px rgba(0,0,0,.25)}
+.sheet h3{font-size:36px;padding-right:44px}
+.sheet .sub{color:var(--grey);margin:10px 0 28px;font-size:15px}
+.close{position:absolute;top:16px;right:16px;width:40px;height:40px;background:none;border:1px solid var(--line);color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
+.close:hover{border-color:var(--ink)}
+.pay{display:grid;gap:10px;margin:24px 0}
+.pay-row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--white);border:1px solid var(--line);padding:14px 16px}
+.pay-row b{font:800 20px/1.2 var(--display);font-stretch:118%;letter-spacing:-.02em}
+.pay-row span{color:var(--grey);font-size:14px;display:block}
+.pay-row .btn{padding:10px 14px;font-size:13px}
+.note{font-size:14px;color:var(--grey);border-left:2px solid var(--cobalt);padding-left:12px;margin:0}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .hero h1 .line > span{animation:none}
+  .btn,.btn .arr{transition:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap">
+    <a class="mark" href="#top">jai<span>.</span>dance</a>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#videos">Videos</a></li>
+      <li><a href="#workshops">Workshops</a></li>
+      <li><a href="#join">Mailing list</a></li>
+    </ul>
+    <a class="btn" href="#workshops">Sign up for class</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-bg"><video id="heroVid" poster="hero-poster.jpg" muted loop playsinline preload="auto" aria-hidden="true"></video></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="label">Dancer · Choreographer</div>
+      <h1><span class="line"><span>jai<em>.</em>dance</span></span></h1>
+      <div class="hero-ctas">
+        <a class="btn" href="#workshops">Sign up for class <span class="arr">→</span></a>
+        <a class="btn ghost" href="#join">Join the mailing list</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="about" class="rule">
+  <div class="wrap">
+    <div class="sec-head"><div class="label">About</div><h2>Hi, I'm Jai.</h2></div>
+    <div class="about-grid">
+      <div class="about-photo"><div class="ph"><span>Portrait · 3:4</span></div></div>
+      <div class="about-text">
+        <p class="pull">I teach the way I learned: clean technique, real musicality, and a lot of fun along the way.</p>
+        <p class="body">I've been dancing for years, training in hip hop, choreography and freestyle, and I love sharing that with anyone who wants to move.</p>
+        <p class="body">Whether it's your first class or you've been dancing your whole life, you'll leave with a new routine and a little more confidence.</p>
+        <span class="draft">Draft bio · we'll rewrite this together</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="videos" class="rule">
+  <div class="wrap">
+    <div class="sec-head"><div class="label">Videos</div><h2>Let's dance.</h2></div>
+    <div class="vids">
+      <a class="vid" href="https://www.youtube.com/@jai.dancee">
+        <div class="ph"><span>Video · 9:16</span></div>
+        <div class="vid-meta"><h3>YouTube</h3><span>@jai.dancee ↗</span></div>
+      </a>
+      <a class="vid" href="https://www.instagram.com/jai.dance/">
+        <div class="ph"><span>Video · 9:16</span></div>
+        <div class="vid-meta"><h3>Instagram</h3><span>@jai.dance ↗</span></div>
+      </a>
+      <a class="vid" href="https://www.tiktok.com/@jai.dancee">
+        <div class="ph"><span>Video · 9:16</span></div>
+        <div class="vid-meta"><h3>TikTok</h3><span>@jai.dancee ↗</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="workshops" class="workshops">
+  <div class="wrap">
+    <div class="sec-head"><div class="label">Workshops</div><h2>Upcoming workshops</h2></div>
+    <div class="ws-list" id="wsList"></div>
+  </div>
+</section>
+
+<section id="join" class="join">
+  <div class="wrap join-grid">
+    <div class="label">Mailing list</div>
+    <h2>Be first in the room.</h2>
+    <form class="join-form" id="listForm" novalidate>
+      <p>New workshop dates, early-bird spots and new videos. A few emails a month.</p>
+      <div class="fields">
+        <div><label for="listName">First name</label><input id="listName" autocomplete="given-name"></div>
+        <div><label for="listEmail">Email</label><input id="listEmail" type="email" autocomplete="email" required></div>
+      </div>
+      <button class="btn" type="submit" style="margin-top:24px">Join the list <span class="arr">→</span></button>
+      <p class="msg" id="listMsg" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <h3>Questions about classes or bookings? Reach out.</h3>
+      <div class="foot-links">
+        <div><div class="label">Follow</div>
+          <ul>
+            <li><a href="https://www.instagram.com/jai.dance/">Instagram ↗</a></li>
+            <li><a href="https://www.youtube.com/@jai.dancee">YouTube ↗</a></li>
+            <li><a href="https://www.tiktok.com/@jai.dancee">TikTok ↗</a></li>
+          </ul>
+        </div>
+        <div><div class="label">Contact</div>
+          <ul><li><span id="contactEmail"></span></li><li><a href="https://www.instagram.com/jai.dance/">DM on Instagram ↗</a></li></ul>
+        </div>
+      </div>
+    </div>
+    <p class="bigmark" aria-hidden="true">jai<span>.</span>dance</p>
+    <div class="foot-base"><span>© <span id="yr"></span> Jai Dance</span><a href="#top">Back to top ↑</a></div>
+  </div>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="sheet">
+    <button class="close" id="mClose" aria-label="Close">×</button>
+    <div id="mStep1">
+      <div class="label">Sign up</div>
+      <h3 id="mTitle" style="margin-top:10px">Workshop</h3>
+      <p class="sub" id="mSub"></p>
+      <form id="suForm" novalidate>
+        <div class="fields">
+          <div><label for="suName">Full name</label><input id="suName" autocomplete="name" required></div>
+          <div><label for="suEmail">Email</label><input id="suEmail" type="email" autocomplete="email" required></div>
+          <div><label for="suPhone">Phone (optional)</label><input id="suPhone" type="tel" autocomplete="tel"></div>
+        </div>
+        <p class="msg err" id="suMsg" role="status"></p>
+        <button class="btn" type="submit" style="margin-top:8px;width:100%">Save my spot <span class="arr">→</span></button>
+      </form>
+    </div>
+    <div id="mStep2" hidden>
+      <div class="label">Step 2 of 2</div>
+      <h3 style="margin-top:10px">You're in. Now pay.</h3>
+      <p class="sub" id="paySub"></p>
+      <div class="pay" id="payList"></div>
+      <p class="note">Put your name and the workshop in the payment note so I can match it to your signup.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Edit these to update the site ===== */
+const CONTACT_EMAIL = "hello@jaidance.com"; // placeholder
+const PAYMENT = {
+  venmo: "@your-venmo",          // placeholder
+  zelle: "your-zelle@email.com", // placeholder
+  cardLink: ""                    // paste a Stripe Payment Link here to turn on card payments
+};
+const WORKSHOPS = [ // sample workshops: replace with real ones
+  {id:"ws-dec-06", day:"06", mon:"Dec", wk:"Sat", title:"Groove Foundations", style:"Hip hop grooves", level:"Beginner", time:"2:00–3:30 PM", place:"Studio TBA", price:30, spots:8},
+  {id:"ws-dec-13", day:"13", mon:"Dec", wk:"Sat", title:"Choreo Intensive", style:"Choreography", level:"Intermediate", time:"1:00–3:00 PM", place:"Studio TBA", price:40, spots:3},
+  {id:"ws-jan-10", day:"10", mon:"Jan", wk:"Sat", title:"Freestyle Lab", style:"Freestyle", level:"All levels", time:"3:00–4:30 PM", place:"Studio TBA", price:30, spots:15}
+];
+/* ========================================== */
+
+// Hero video: 4K on large/high-density screens, 1080p elsewhere
+(function(){
+  const v = document.getElementById("heroVid"); if (!v) return;
+  const px = Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1);
+  v.src = px >= 2400 ? "hero-4k.mp4" : "hero-1080.mp4";
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) { v.autoplay = true; const p = v.play(); if (p && p.catch) p.catch(()=>{}); }
+})();
+
+const $ = s => document.querySelector(s);
+$("#contactEmail").textContent = CONTACT_EMAIL;
+$("#yr").textContent = new Date().getFullYear();
+
+const nav = $("#nav");
+const onScroll = () => nav.classList.toggle("solid", window.scrollY > 10);
+window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+$("#wsList").innerHTML = WORKSHOPS.map(w => `
+  <article class="ws">
+    <div class="ws-date"><b>${esc(w.day)}</b><span>${esc(w.mon)} · ${esc(w.wk)}</span></div>
+    <div class="ws-main">
+      <h3>${esc(w.title)}</h3>
+      <div class="ws-info"><span>${esc(w.style)}</span><span>${esc(w.level)}</span><span>${esc(w.time)}</span><span>${esc(w.place)}</span></div>
+    </div>
+    <div class="ws-side">
+      <div class="price">$${w.price}<span class="spots ${w.spots<=5?"low":""}">${w.spots<=5?"Only "+w.spots+" spots left":w.spots+" spots left"}</span></div>
+      <button class="btn" data-ws="${esc(w.id)}">Sign up <span class="arr">→</span></button>
+    </div>
+  </article>`).join("");
+
+// Storage (shared database). Null when this viewer can't save.
+let dbP = null;
+function getDb(){
+  if (!dbP) dbP = (window.claude && window.claude.use) ? Promise.all([window.claude.use("db"), window.claude.use("user")]) : Promise.resolve([null,null]);
+  return dbP;
+}
+async function saveTo(coll, record){
+  const [db, user] = await getDb();
+  if (!db || !user) throw new Error("no-db");
+  const id = await user.id();
+  const ref = db.collection(coll).doc(id);
+  let existing = {};
+  try { const snap = await ref.get(); existing = (snap && (snap.data ? snap.data() : snap)) || {}; } catch(e) {}
+  await ref.set(record(existing));
+}
+const FALLBACK = `Couldn't save that here. Message <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram and I'll add you.`;
+
+let current = null, lastFocus = null;
+function openModal(w){
+  current = w; lastFocus = document.activeElement;
+  $("#mTitle").textContent = w.title;
+  $("#mSub").textContent = `${w.wk}, ${w.mon} ${w.day} · ${w.time} · $${w.price}`;
+  $("#mStep1").hidden = false; $("#mStep2").hidden = true; $("#suMsg").innerHTML = "";
+  $("#modal").classList.add("open"); $("#suName").focus();
+}
+function closeModal(){ $("#modal").classList.remove("open"); if (lastFocus) lastFocus.focus(); }
+$("#mClose").onclick = closeModal;
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+$("#wsList").addEventListener("click", e => {
+  const b = e.target.closest("[data-ws]"); if (!b) return;
+  openModal(WORKSHOPS.find(w => w.id === b.dataset.ws));
+});
+
+const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+$("#suForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("#suName").value.trim(), email = $("#suEmail").value.trim(), phone = $("#suPhone").value.trim();
+  const msg = $("#suMsg");
+  if (!name) { msg.className = "msg err"; msg.textContent = "Add your name."; return; }
+  if (!emailOk(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email so I can send details."; return; }
+  msg.className = "msg"; msg.textContent = "Saving…";
+  const btn = e.submitter; if (btn) btn.disabled = true;
+  try {
+    await saveTo("signups", ex => {
+      const regs = Object.assign({}, ex.registrations || {});
+      regs[current.id] = {workshop: current.title, date: `${current.mon} ${current.day}`, price: current.price, at: new Date().toISOString()};
+      return {name, email, phone, registrations: regs, updatedAt: new Date().toISOString()};
+    });
+    showPay();
+  } catch(err) {
+    msg.className = "msg err"; msg.innerHTML = FALLBACK;
+  } finally { if (btn) btn.disabled = false; }
+});
+
+function showPay(){
+  $("#mStep1").hidden = true; $("#mStep2").hidden = false;
+  $("#paySub").textContent = `${current.title} · $${current.price}. Your spot is held once payment comes in.`;
+  const rows = [
+    {k:"Venmo", v:PAYMENT.venmo},
+    {k:"Zelle", v:PAYMENT.zelle},
+    {k:"Card", v:PAYMENT.cardLink ? "Pay securely by card" : "Coming soon", link:PAYMENT.cardLink}
+  ];
+  $("#payList").innerHTML = rows.map(r => `
+    <div class="pay-row"><div><b>${r.k}</b><span>${esc(r.v)}</span></div>
+    ${r.k==="Card"
+      ? (r.link ? `<a class="btn" href="${esc(r.link)}">Pay $${current.price}</a>` : `<button class="btn ghost" disabled>Card</button>`)
+      : `<button class="btn ghost" data-copy="${esc(r.v)}">Copy</button>`}
+    </div>`).join("");
+}
+$("#payList").addEventListener("click", async e => {
+  const b = e.target.closest("[data-copy]"); if (!b) return;
+  try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; }
+  catch(_) { b.textContent = "Select it"; }
+  setTimeout(() => b.textContent = "Copy", 1600);
+});
+
+$("#listForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = $("#listName").value.trim(), email = $("#listEmail").value.trim(), msg = $("#listMsg");
+  if (!emailOk(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email."; return; }
+  msg.className = "msg"; msg.textContent = "Adding you…";
+  try {
+    await saveTo("mailing", () => ({name, email, at: new Date().toISOString()}));
+    msg.className = "msg"; msg.textContent = "You're on the list. See you in class.";
+    e.target.reset();
+  } catch(err) { msg.className = "msg err"; msg.innerHTML = FALLBACK; }
+});
+</script>
+</body>
+</html>
