@@ -129,8 +129,10 @@ section{padding:clamp(72px,10vw,136px) 0;scroll-margin-top:72px}
 .fw-btn[disabled]{opacity:.25;cursor:default}
 .fw-track{display:flex;gap:clamp(14px,2vw,24px);overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px;overscroll-behavior-x:contain}
 .fw-track::-webkit-scrollbar{display:none}
-.fw-card{flex:0 0 calc((100% - 2 * clamp(14px,2vw,24px)) / 3.25);scroll-snap-align:start;text-decoration:none;display:block}
-.fw-card .ph,.fw-photo{aspect-ratio:4/5}
+.fw-track{--fw-h:clamp(300px,36vw,460px)}
+.fw-card{flex:0 0 auto;width:min(calc(var(--fw-h) * var(--r,.8)),86vw);scroll-snap-align:start;text-decoration:none;display:block}
+.fw-card .ph,.fw-photo{height:calc(min(var(--fw-h) * var(--r,.8), 86vw) / var(--r,.8));width:100%}
+.fw-track{align-items:flex-start}
 .fw-photo{overflow:hidden;border:1px solid var(--line);background:#e9e7e1;transition:border-color .2s}
 .fw-photo img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
 a.fw-card:hover .fw-photo{border-color:var(--ink)}
@@ -142,7 +144,7 @@ a.fw-card:hover .fw-photo img{transform:scale(1.03)}
 .fw-meta p{margin:6px 0 0;font-size:15px;color:var(--grey)}
 a.fw-card:hover .fw-meta h3{color:var(--cobalt)}
 @media (max-width:800px){.fw-head{grid-template-rows:none}.fw-head .label,.fw-head h2,.fw-nav{grid-column:1 / -1;grid-row:auto}.fw-head h2{white-space:normal}}
-@media (max-width:760px){.fw-card{flex-basis:78%}}
+@media (max-width:760px){.fw-track{--fw-h:340px}}
 
 /* Workshops */
 .workshops{background:var(--white);border-block:1px solid var(--line)}
@@ -301,9 +303,10 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
 <script>
 /* ===== Featured work: edit this list =====
    photo: file name of an image in this folder (optional; shows a placeholder if empty)
+   w, h: the photo's width and height in pixels, so wide and tall photos keep their shape
    link: where the card goes when clicked (optional) */
 const FEATURED = [
-  {title:"Project title", detail:"Role · Production or artist", date:"Oct 2026", photo:"", link:""},
+  {title:"Jacquemus", detail:"Tesher · Music video", date:"", photo:"fw-jacquemus.jpg", w:1800, h:1066, link:""},
   {title:"Project title", detail:"Role · Production or artist", date:"Aug 2026", photo:"", link:""},
   {title:"Project title", detail:"Role · Production or artist", date:"Jun 2026", photo:"", link:""},
   {title:"Project title", detail:"Role · Production or artist", date:"Mar 2026", photo:"", link:""},
@@ -313,11 +316,13 @@ const FEATURED = [
   const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const track = document.getElementById("fwTrack");
   track.innerHTML = FEATURED.map(f => {
+    const r = (f.photo && f.w && f.h) ? f.w / f.h : 4/5;
     const media = f.photo
       ? `<div class="fw-photo"><img src="${esc(f.photo)}" alt="${esc(f.title)}" loading="lazy"></div>`
-      : `<div class="ph"><span>Photo · 4:5</span></div>`;
-    const meta = `<div class="fw-meta"><div class="fw-top"><h3>${esc(f.title)}</h3><time>${esc(f.date)}</time></div><p>${esc(f.detail)}</p></div>`;
-    return f.link ? `<a class="fw-card" href="${esc(f.link)}">${media}${meta}</a>` : `<div class="fw-card">${media}${meta}</div>`;
+      : `<div class="ph"><span>Photo</span></div>`;
+    const meta = `<div class="fw-meta"><div class="fw-top"><h3>${esc(f.title)}</h3>${f.date?`<time>${esc(f.date)}</time>`:""}</div><p>${esc(f.detail)}</p></div>`;
+    const st = `style="--r:${r.toFixed(4)}"`;
+    return f.link ? `<a class="fw-card" ${st} href="${esc(f.link)}">${media}${meta}</a>` : `<div class="fw-card" ${st}>${media}${meta}</div>`;
   }).join("");
   const prev = document.getElementById("fwPrev"), next = document.getElementById("fwNext");
   const step = () => { const c = track.querySelector(".fw-card"); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth; };
