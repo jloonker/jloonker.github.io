@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You're in · Jai Dance</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..900&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f5f4f0;--white:#fff;--ink:#111;--grey:#6e6c67;--line:#dedbd3;--cobalt:#5b5ef0;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;--body:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px}
+.wrap{max-width:760px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+nav{border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;height:72px}
+.mark{font:800 22px/1 var(--display);font-stretch:118%;letter-spacing:-.03em;text-decoration:none}
+.mark span{color:var(--cobalt)}
+main{padding:clamp(48px,8vw,96px) 0}
+.label{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt)}
+h1{font:800 clamp(52px,9vw,112px)/.95 var(--display);font-stretch:118%;letter-spacing:-.03em;margin:16px 0 0}
+h1 span{color:var(--cobalt)}
+.lede{font-size:clamp(18px,1.8vw,21px);color:#2b2a28;max-width:46ch;margin:20px 0 0}
+.card{background:var(--white);border:1px solid var(--line);margin-top:40px;padding:clamp(20px,4vw,32px)}
+.card h2{font:800 clamp(28px,3.6vw,40px)/1 var(--display);font-stretch:118%;letter-spacing:-.03em;margin:0}
+dl{margin:20px 0 0;border-top:1px solid var(--line)}
+dl div{display:grid;grid-template-columns:90px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+dt{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);padding-top:3px}
+dd{margin:0}
+.dim{color:var(--grey);font-size:15px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 15px/1 var(--body);padding:16px 22px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.btn:hover{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.bring{margin-top:40px}
+.bring h3{font:700 22px/1.2 var(--display);font-stretch:108%;margin:0 0 10px}
+.bring ul{margin:0;padding-left:20px;color:#3a3936}
+.foot{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);font-size:15px;color:var(--grey)}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><a class="mark" href="./">jai<span>.</span>dance</a></div></nav>
+<main><div class="wrap">
+  <div class="label">Payment confirmed</div>
+  <h1>You're in<span>.</span></h1>
+  <p class="lede">Thanks for signing up. Your receipt is on its way to your email. Here's everything you need for class.</p>
+
+  <section class="card" aria-labelledby="cTitle">
+    <h2 id="cTitle"></h2>
+    <dl id="cDetails"></dl>
+    <div class="actions">
+      <a class="btn" id="gcal" href="#">Add to Google Calendar</a>
+      <button class="btn ghost" id="ics" type="button">Download calendar file</button>
+      <a class="btn ghost" id="map" href="#">Get directions</a>
+    </div>
+  </section>
+
+  <section class="bring">
+    <h3>Before class</h3>
+    <ul>
+      <li>Arrive 10 minutes early to check in and warm up.</li>
+      <li>Wear clothes you can move in and clean sneakers.</li>
+      <li>Bring water.</li>
+    </ul>
+  </section>
+
+  <p class="foot">Questions or need to cancel? Message <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram. <a href="./">Back to jai.dance</a></p>
+</div></main>
+
+<script>
+const CLASSES = {
+  "bollywood-hiphop-2026-12-05": {title:"Bollywood Hip Hop", date:"2026-12-05", start:"14:00", end:"16:00",
+    when:"Saturday, December 5, 2026 · 2:00–4:00 PM", level:"Beginner / Intermediate",
+    place:"Smuin Center for Dance", address:"1830 17th St, San Francisco, CA 94103"}
+};
+const params = new URLSearchParams(location.search);
+const c = CLASSES[params.get("class")] || Object.values(CLASSES)[0];
+const esc = t => String(t).replace(/[&<>"]/g, x => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]));
+document.getElementById("cTitle").textContent = c.title;
+document.getElementById("cDetails").innerHTML = [
+  ["When", esc(c.when)],
+  ["Where", `${esc(c.place)}<br><span class="dim">${esc(c.address)}</span>`],
+  ["Level", esc(c.level)]
+].map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+
+const stamp = (d,t) => d.replace(/-/g,"") + "T" + t.replace(":","") + "00";
+const loc = `${c.place}, ${c.address}`;
+const g = new URL("https://calendar.google.com/calendar/render");
+g.searchParams.set("action","TEMPLATE");
+g.searchParams.set("text", `${c.title} with Jai`);
+g.searchParams.set("dates", `${stamp(c.date,c.start)}/${stamp(c.date,c.end)}`);
+g.searchParams.set("ctz","America/Los_Angeles");
+g.searchParams.set("location", loc);
+document.getElementById("gcal").href = g.toString();
+document.getElementById("map").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(loc);
+document.getElementById("ics").addEventListener("click", () => {
+  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//jai.dance//EN","BEGIN:VEVENT",
+    "UID:" + c.date + "-" + c.start.replace(":","") + "@jai.dance",
+    "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g,"").slice(0,15) + "Z",
+    "DTSTART;TZID=America/Los_Angeles:" + stamp(c.date,c.start),
+    "DTEND;TZID=America/Los_Angeles:" + stamp(c.date,c.end),
+    "SUMMARY:" + c.title + " with Jai",
+    "LOCATION:" + loc.replace(/,/g,"\\,"),
+    "END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([ics], {type:"text/calendar"}));
+  a.download = "bollywood-hip-hop.ics"; document.body.appendChild(a); a.click(); a.remove();
+});
+</script>
+</body>
+</html>

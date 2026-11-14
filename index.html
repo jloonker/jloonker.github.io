@@ -187,6 +187,17 @@ input:focus{outline:none;border-color:var(--cobalt)}
 .msg{font-size:15px;min-height:1.5em;margin:14px 0 0}
 .msg.err{color:var(--cobalt)}
 
+/* Ticket modal */
+.tix{margin:22px 0 0;border-top:1px solid var(--line)}
+.tix div{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.tix dt{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);padding-top:3px}
+.tix dd{margin:0;font-size:16px}
+.tix .dim{color:var(--grey);font-size:14px}
+.steps{margin:22px 0 24px;padding-left:20px;color:#3a3936;font-size:15px;display:grid;gap:6px}
+.btn.off{background:var(--line);border-color:var(--line);color:var(--grey);cursor:not-allowed}
+.ws-info a{color:inherit;text-underline-offset:3px}
+.ws-info a:hover{color:var(--cobalt)}
+
 /* Footer */
 footer{padding:clamp(56px,7vw,96px) 0 32px}
 .foot-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;padding-bottom:40px}
@@ -389,42 +400,29 @@ const FEATURED = [
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="sheet">
     <button class="close" id="mClose" aria-label="Close">×</button>
-    <div id="mStep1">
-      <div class="label">Sign up</div>
-      <h3 id="mTitle" style="margin-top:10px">Workshop</h3>
-      <p class="sub" id="mSub"></p>
-      <form id="suForm" novalidate>
-        <div class="fields">
-          <div><label for="suName">Full name</label><input id="suName" autocomplete="name" required></div>
-          <div><label for="suEmail">Email</label><input id="suEmail" type="email" autocomplete="email" required></div>
-          <div><label for="suPhone">Phone (optional)</label><input id="suPhone" type="tel" autocomplete="tel"></div>
-        </div>
-        <p class="msg err" id="suMsg" role="status"></p>
-        <button class="btn" type="submit" style="margin-top:8px;width:100%">Save my spot <span class="arr">→</span></button>
-      </form>
-    </div>
-    <div id="mStep2" hidden>
-      <div class="label">Step 2 of 2</div>
-      <h3 style="margin-top:10px">You're in. Now pay.</h3>
-      <p class="sub" id="paySub"></p>
-      <div class="pay" id="payList"></div>
-      <p class="note">Put your name and the workshop in the payment note so I can match it to your signup.</p>
-    </div>
+    <div class="label">Get tickets</div>
+    <h3 id="mTitle" style="margin-top:10px">Class</h3>
+    <dl class="tix" id="mDetails"></dl>
+    <ol class="steps">
+      <li>Enter your name, email and phone on the secure checkout page.</li>
+      <li>Pay by card, Apple Pay or Google Pay.</li>
+      <li>Get an instant confirmation page and an emailed receipt.</li>
+    </ol>
+    <a class="btn" id="mCheckout" href="#" style="width:100%">Continue to checkout <span class="arr">→</span></a>
+    <p class="note" id="mNote" style="margin-top:16px">Payments are processed securely by Stripe.</p>
   </div>
 </div>
 
 <script>
 /* ===== Edit these to update the site ===== */
 const CONTACT_EMAIL = "hello@jaidance.com"; // placeholder
-const PAYMENT = {
-  venmo: "@your-venmo",          // placeholder
-  zelle: "your-zelle@email.com", // placeholder
-  cardLink: ""                    // paste a Stripe Payment Link here to turn on card payments
-};
-const WORKSHOPS = [ // sample workshops: replace with real ones
-  {id:"ws-dec-06", day:"06", mon:"Dec", wk:"Sat", title:"Groove Foundations", style:"Hip hop grooves", level:"Beginner", time:"2:00–3:30 PM", place:"Studio TBA", price:30, spots:8},
-  {id:"ws-dec-13", day:"13", mon:"Dec", wk:"Sat", title:"Choreo Intensive", style:"Choreography", level:"Intermediate", time:"1:00–3:00 PM", place:"Studio TBA", price:40, spots:3},
-  {id:"ws-jan-10", day:"10", mon:"Jan", wk:"Sat", title:"Freestyle Lab", style:"Freestyle", level:"All levels", time:"3:00–4:30 PM", place:"Studio TBA", price:30, spots:15}
+const WORKSHOPS = [
+  /* checkout: the Stripe Payment Link for this class. Leave "" until it's ready.
+     price / spots: set to null to hide them. */
+  {id:"bollywood-hiphop-2026-12-05", day:"05", mon:"Dec", wk:"Sat", year:2026,
+   start:"14:00", end:"16:00", title:"Bollywood Hip Hop", style:"Bollywood × Hip Hop", level:"Beginner / Intermediate",
+   time:"2:00–4:00 PM", place:"Smuin Center for Dance", address:"1830 17th St, San Francisco, CA 94103",
+   placeUrl:"https://www.smuinballet.org/", price:null, spots:null, checkout:""}
 ];
 /* ========================================== */
 
@@ -458,43 +456,44 @@ const onScroll = () => nav.classList.toggle("solid", window.scrollY > 10);
 window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const priceText = w => w.price == null ? "Price TBA" : `$${w.price}`;
+const spotsText = w => w.spots == null ? "" : (w.spots <= 0 ? "Sold out" : w.spots <= 5 ? `Only ${w.spots} spots left` : `${w.spots} spots left`);
 $("#wsList").innerHTML = WORKSHOPS.map(w => `
   <article class="ws">
     <div class="ws-date"><b>${esc(w.day)}</b><span>${esc(w.mon)} · ${esc(w.wk)}</span></div>
     <div class="ws-main">
       <h3>${esc(w.title)}</h3>
-      <div class="ws-info"><span>${esc(w.style)}</span><span>${esc(w.level)}</span><span>${esc(w.time)}</span><span>${esc(w.place)}</span></div>
+      <div class="ws-info"><span>${esc(w.level)}</span><span>${esc(w.time)}</span><span><a href="${esc(w.placeUrl)}">${esc(w.place)}</a></span></div>
     </div>
     <div class="ws-side">
-      <div class="price">$${w.price}<span class="spots ${w.spots<=5?"low":""}">${w.spots<=5?"Only "+w.spots+" spots left":w.spots+" spots left"}</span></div>
-      <button class="btn" data-ws="${esc(w.id)}">Sign up <span class="arr">→</span></button>
+      <div class="price">${priceText(w)}<span class="spots ${w.spots!=null&&w.spots<=5?"low":""}">${spotsText(w)}</span></div>
+      <button class="btn" data-ws="${esc(w.id)}" ${w.spots===0?"disabled":""}>${w.spots===0?"Sold out":"Sign up"} <span class="arr">→</span></button>
     </div>
   </article>`).join("");
 
-// Storage (shared database). Null when this viewer can't save.
-let dbP = null;
-function getDb(){
-  if (!dbP) dbP = (window.claude && window.claude.use) ? Promise.all([window.claude.use("db"), window.claude.use("user")]) : Promise.resolve([null,null]);
-  return dbP;
-}
-async function saveTo(coll, record){
-  const [db, user] = await getDb();
-  if (!db || !user) throw new Error("no-db");
-  const id = await user.id();
-  const ref = db.collection(coll).doc(id);
-  let existing = {};
-  try { const snap = await ref.get(); existing = (snap && (snap.data ? snap.data() : snap)) || {}; } catch(e) {}
-  await ref.set(record(existing));
-}
-const FALLBACK = `Couldn't save that here. Message <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram and I'll add you.`;
-
-let current = null, lastFocus = null;
+// Ticket modal: details, then hand off to Stripe Checkout (collects info + payment, then returns to thanks.html)
+let lastFocus = null;
 function openModal(w){
-  current = w; lastFocus = document.activeElement;
+  lastFocus = document.activeElement;
   $("#mTitle").textContent = w.title;
-  $("#mSub").textContent = `${w.wk}, ${w.mon} ${w.day} · ${w.time} · $${w.price}`;
-  $("#mStep1").hidden = false; $("#mStep2").hidden = true; $("#suMsg").innerHTML = "";
-  $("#modal").classList.add("open"); $("#suName").focus();
+  $("#mDetails").innerHTML = [
+    ["When", `${w.wk}, ${w.mon} ${Number(w.day)}, ${w.year} · ${w.time}`],
+    ["Where", `${w.place}<br><span class="dim">${w.address}</span>`],
+    ["Level", w.level],
+    ["Price", priceText(w) + (spotsText(w) ? ` · ${spotsText(w)}` : "")]
+  ].map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
+  const go = $("#mCheckout");
+  if (w.checkout) {
+    const u = new URL(w.checkout); u.searchParams.set("client_reference_id", w.id);
+    go.href = u.toString(); go.removeAttribute("aria-disabled"); go.classList.remove("off");
+    go.innerHTML = `Continue to checkout <span class="arr">→</span>`;
+    $("#mNote").innerHTML = "Payments are processed securely by Stripe.";
+  } else {
+    go.removeAttribute("href"); go.setAttribute("aria-disabled","true"); go.classList.add("off");
+    go.textContent = "Tickets open soon";
+    $("#mNote").innerHTML = `Want a spot now? Message <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram.`;
+  }
+  $("#modal").classList.add("open"); $("#mClose").focus();
 }
 function closeModal(){ $("#modal").classList.remove("open"); if (lastFocus) lastFocus.focus(); }
 $("#mClose").onclick = closeModal;
@@ -505,49 +504,11 @@ $("#wsList").addEventListener("click", e => {
   openModal(WORKSHOPS.find(w => w.id === b.dataset.ws));
 });
 
+// Mailing list isn't connected to a service yet
+const FALLBACK = `The list isn't open yet. Follow <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram for class dates.`;
+async function saveTo(){ throw new Error("not-connected"); }
+
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-
-$("#suForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const name = $("#suName").value.trim(), email = $("#suEmail").value.trim(), phone = $("#suPhone").value.trim();
-  const msg = $("#suMsg");
-  if (!name) { msg.className = "msg err"; msg.textContent = "Add your name."; return; }
-  if (!emailOk(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email so I can send details."; return; }
-  msg.className = "msg"; msg.textContent = "Saving…";
-  const btn = e.submitter; if (btn) btn.disabled = true;
-  try {
-    await saveTo("signups", ex => {
-      const regs = Object.assign({}, ex.registrations || {});
-      regs[current.id] = {workshop: current.title, date: `${current.mon} ${current.day}`, price: current.price, at: new Date().toISOString()};
-      return {name, email, phone, registrations: regs, updatedAt: new Date().toISOString()};
-    });
-    showPay();
-  } catch(err) {
-    msg.className = "msg err"; msg.innerHTML = FALLBACK;
-  } finally { if (btn) btn.disabled = false; }
-});
-
-function showPay(){
-  $("#mStep1").hidden = true; $("#mStep2").hidden = false;
-  $("#paySub").textContent = `${current.title} · $${current.price}. Your spot is held once payment comes in.`;
-  const rows = [
-    {k:"Venmo", v:PAYMENT.venmo},
-    {k:"Zelle", v:PAYMENT.zelle},
-    {k:"Card", v:PAYMENT.cardLink ? "Pay securely by card" : "Coming soon", link:PAYMENT.cardLink}
-  ];
-  $("#payList").innerHTML = rows.map(r => `
-    <div class="pay-row"><div><b>${r.k}</b><span>${esc(r.v)}</span></div>
-    ${r.k==="Card"
-      ? (r.link ? `<a class="btn" href="${esc(r.link)}">Pay $${current.price}</a>` : `<button class="btn ghost" disabled>Card</button>`)
-      : `<button class="btn ghost" data-copy="${esc(r.v)}">Copy</button>`}
-    </div>`).join("");
-}
-$("#payList").addEventListener("click", async e => {
-  const b = e.target.closest("[data-copy]"); if (!b) return;
-  try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; }
-  catch(_) { b.textContent = "Select it"; }
-  setTimeout(() => b.textContent = "Copy", 1600);
-});
 
 $("#listForm").addEventListener("submit", async e => {
   e.preventDefault();
