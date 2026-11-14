@@ -400,9 +400,6 @@ const FEATURED = [
             <li><a href="https://www.tiktok.com/@jai.dancee">TikTok ↗</a></li>
           </ul>
         </div>
-        <div><div class="label">Contact</div>
-          <ul><li><span id="contactEmail"></span></li><li><a href="https://www.instagram.com/jai.dance/">DM on Instagram ↗</a></li></ul>
-        </div>
       </div>
     </div>
     <p class="bigmark" aria-hidden="true">jai<span>.</span>dance</p>
@@ -428,7 +425,6 @@ const FEATURED = [
 
 <script>
 /* ===== Edit these to update the site ===== */
-const CONTACT_EMAIL = "hello@jaidance.com"; // placeholder
 const WORKSHOPS = [
   /* checkout: the Stripe Payment Link for this class. Leave "" until it's ready.
      price / spots: set to null to hide them. */
@@ -461,7 +457,6 @@ const WORKSHOPS = [
 })();
 
 const $ = s => document.querySelector(s);
-$("#contactEmail").textContent = CONTACT_EMAIL;
 $("#yr").textContent = new Date().getFullYear();
 
 const nav = $("#nav");
