@@ -452,13 +452,24 @@ const WORKSHOPS = [
 ];
 /* ========================================== */
 
-// Hero video: 4K on large/high-density screens, 1080p elsewhere
+// Hero video: portrait cut for phones, 4K on big high-density screens, 1080p elsewhere.
+// Retries play() whenever the browser lets it (data loaded, tab shown again, first tap/scroll),
+// so it doesn't stay frozen on the first frame on slow connections or iPhone Low Power Mode.
 (function(){
   const v = document.getElementById("heroVid"); if (!v) return;
-  const px = Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1);
-  v.src = px >= 2400 ? "hero-4k.mp4" : "hero-1080.mp4";
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) { v.autoplay = true; const p = v.play(); if (p && p.catch) p.catch(()=>{}); }
+  const portrait = window.innerHeight > window.innerWidth;
+  const px = window.innerWidth * (window.devicePixelRatio || 1);
+  v.muted = true; v.defaultMuted = true; v.setAttribute("muted", "");
+  v.src = portrait ? "hero-mobile.mp4" : (px >= 2400 ? "hero-4k.mp4" : "hero-1080.mp4");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  v.autoplay = true;
+  const tryPlay = () => { if (!v.paused) return; const p = v.play(); if (p && p.catch) p.catch(()=>{}); };
+  ["loadedmetadata","loadeddata","canplay"].forEach(ev => v.addEventListener(ev, tryPlay));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) tryPlay(); });
+  window.addEventListener("pageshow", tryPlay);
+  const onFirst = () => { tryPlay(); ["touchstart","click","scroll","keydown"].forEach(ev => window.removeEventListener(ev, onFirst)); };
+  ["touchstart","click","scroll","keydown"].forEach(ev => window.addEventListener(ev, onFirst, {passive:true}));
+  tryPlay();
 })();
 
 // Card videos: play only while on screen (saves data and battery)
