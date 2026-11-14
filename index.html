@@ -421,8 +421,8 @@ const WORKSHOPS = [
      price / spots: set to null to hide them. */
   {id:"bollywood-hiphop-2026-12-05", day:"05", mon:"Dec", wk:"Sat", year:2026,
    start:"14:00", end:"16:00", title:"Bollywood Hip Hop", style:"Bollywood × Hip Hop", level:"Beginner / Intermediate",
-   time:"2:00–4:00 PM", place:"Smuin Center for Dance", address:"1830 17th St, San Francisco, CA 94103",
-   placeUrl:"https://www.smuinballet.org/", price:null, spots:null, checkout:""}
+   time:"Time TBD", place:"Location TBD", address:"San Francisco, CA",
+   placeUrl:"", price:25, spots:null, checkout:""}
 ];
 /* ========================================== */
 
@@ -463,7 +463,7 @@ $("#wsList").innerHTML = WORKSHOPS.map(w => `
     <div class="ws-date"><b>${esc(w.day)}</b><span>${esc(w.mon)} · ${esc(w.wk)}</span></div>
     <div class="ws-main">
       <h3>${esc(w.title)}</h3>
-      <div class="ws-info"><span>${esc(w.level)}</span><span>${esc(w.time)}</span><span><a href="${esc(w.placeUrl)}">${esc(w.place)}</a></span></div>
+      <div class="ws-info"><span>${esc(w.level)}</span><span>${esc(w.time)}</span><span>${w.placeUrl ? `<a href="${esc(w.placeUrl)}">${esc(w.place)}</a>` : esc(w.place)}</span></div>
     </div>
     <div class="ws-side">
       <div class="price">${priceText(w)}<span class="spots ${w.spots!=null&&w.spots<=5?"low":""}">${spotsText(w)}</span></div>
