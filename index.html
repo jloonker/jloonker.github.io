@@ -171,8 +171,12 @@ a.fw-card:hover .fw-meta h3{color:var(--cobalt)}
 .join-form{grid-column:8 / span 5}
 .join-form p{margin:0 0 24px;color:rgba(255,255,255,.85);max-width:40ch}
 .join label{color:rgba(255,255,255,.75)}
-.join input{color:#fff;border-color:rgba(255,255,255,.45)}
-.join input:focus{border-color:#fff}
+.join input,.join select{color:#fff;border-color:rgba(255,255,255,.45)}
+.join input:focus,.join select:focus{border-color:#fff}
+.join input::placeholder{color:rgba(255,255,255,.5)}
+form select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 12px) 55%,calc(100% - 6px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:28px}
+select:invalid{color:rgba(255,255,255,.5)}
+.join option{color:var(--ink)}
 .join .btn{background:#fff;border-color:#fff;color:var(--cobalt)}
 .join .btn:hover{background:var(--ink);border-color:var(--ink);color:#fff}
 .join :focus-visible{outline-color:#fff}
@@ -182,8 +186,8 @@ a.fw-card:hover .fw-meta h3{color:var(--cobalt)}
 /* Forms */
 .fields{display:grid;gap:18px}
 label{display:block;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-bottom:4px}
-input{width:100%;font:inherit;font-size:18px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px solid var(--line);padding:10px 0;border-radius:0}
-input:focus{outline:none;border-color:var(--cobalt)}
+input,select{width:100%;font:inherit;font-size:18px;color:var(--ink);background:transparent;border:0;border-bottom:1.5px solid var(--line);padding:10px 0;border-radius:0}
+input:focus,select:focus{outline:none;border-color:var(--cobalt)}
 .msg{font-size:15px;min-height:1.5em;margin:14px 0 0}
 .msg.err{color:var(--cobalt)}
 
@@ -366,8 +370,17 @@ const FEATURED = [
     <form class="join-form" id="listForm" novalidate>
       <p>New workshop dates, early-bird spots and new videos. A few emails a month.</p>
       <div class="fields">
-        <div><label for="listName">First name</label><input id="listName" autocomplete="given-name"></div>
+        <div><label for="listName">Name</label><input id="listName" autocomplete="name" required></div>
         <div><label for="listEmail">Email</label><input id="listEmail" type="email" autocomplete="email" required></div>
+        <div><label for="listCity">Where are you based?</label><input id="listCity" autocomplete="address-level2" placeholder="City, e.g. San Francisco" required></div>
+        <div><label for="listLevel">Dance level</label>
+          <select id="listLevel" required>
+            <option value="" disabled selected>Choose one</option>
+            <option>New to dance</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+          </select></div>
       </div>
       <button class="btn" type="submit" style="margin-top:24px">Join the list <span class="arr">→</span></button>
       <p class="msg" id="listMsg" role="status"></p>
@@ -512,11 +525,15 @@ const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 $("#listForm").addEventListener("submit", async e => {
   e.preventDefault();
-  const name = $("#listName").value.trim(), email = $("#listEmail").value.trim(), msg = $("#listMsg");
+  const name = $("#listName").value.trim(), email = $("#listEmail").value.trim(),
+        city = $("#listCity").value.trim(), level = $("#listLevel").value, msg = $("#listMsg");
+  if (!name) { msg.className = "msg err"; msg.textContent = "Enter your name."; return; }
   if (!emailOk(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email."; return; }
+  if (!city) { msg.className = "msg err"; msg.textContent = "Tell us where you're based."; return; }
+  if (!level) { msg.className = "msg err"; msg.textContent = "Choose your dance level."; return; }
   msg.className = "msg"; msg.textContent = "Adding you…";
   try {
-    await saveTo("mailing", () => ({name, email, at: new Date().toISOString()}));
+    await saveTo("mailing", () => ({name, email, city, level, at: new Date().toISOString()}));
     msg.className = "msg"; msg.textContent = "You're on the list. See you in class.";
     e.target.reset();
   } catch(err) { msg.className = "msg err"; msg.innerHTML = FALLBACK; }
