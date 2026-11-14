@@ -517,9 +517,15 @@ $("#wsList").addEventListener("click", e => {
   openModal(WORKSHOPS.find(w => w.id === b.dataset.ws));
 });
 
-// Mailing list isn't connected to a service yet
-const FALLBACK = `The list isn't open yet. Follow <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram for class dates.`;
-async function saveTo(){ throw new Error("not-connected"); }
+// Mailing list → Google Sheet (via Google Apps Script web app).
+// Paste the web app URL below after deploying apps-script/mailing-list.gs. Leave "" to keep the list closed.
+const MAILING_LIST_URL = "";
+const FALLBACK = `Something went wrong. Follow <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram for class dates.`;
+async function saveTo(kind, build){
+  if (!MAILING_LIST_URL) throw new Error("not-connected");
+  // text/plain avoids a CORS preflight; Apps Script can't send CORS headers, so the response is opaque.
+  await fetch(MAILING_LIST_URL, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(build())});
+}
 
 const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
@@ -536,7 +542,12 @@ $("#listForm").addEventListener("submit", async e => {
     await saveTo("mailing", () => ({name, email, city, level, at: new Date().toISOString()}));
     msg.className = "msg"; msg.textContent = "You're on the list. See you in class.";
     e.target.reset();
-  } catch(err) { msg.className = "msg err"; msg.innerHTML = FALLBACK; }
+  } catch(err) {
+    msg.className = "msg err";
+    msg.innerHTML = err.message === "not-connected"
+      ? `The list opens soon. Follow <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram for class dates.`
+      : FALLBACK;
+  }
 });
 </script>
 </body>
