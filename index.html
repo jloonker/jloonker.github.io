@@ -152,6 +152,7 @@ a.fw-card:hover .fw-meta h3{color:var(--cobalt)}
 .ws{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(16px,3vw,40px);align-items:center;padding:30px 0;border-bottom:1px solid var(--line);transition:background .2s}
 .ws-date{grid-column:1 / span 2;font-family:var(--display);font-stretch:118%;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .ws-date b{display:block;font-size:clamp(44px,4.6vw,64px);font-weight:800;line-height:.9}
+.ws-date b.tbd{font-size:clamp(30px,3.4vw,48px)}
 .ws-date span{font-size:15px;font-weight:600;color:var(--grey);letter-spacing:0}
 .ws-main{grid-column:3 / span 6}
 .ws h3{font-size:clamp(26px,2.8vw,38px)}
@@ -428,7 +429,7 @@ const FEATURED = [
 const WORKSHOPS = [
   /* checkout: the Stripe Payment Link for this class. Leave "" until it's ready.
      price / spots: set to null to hide them. */
-  {id:"bollywood-hiphop-2026-12-05", day:"05", mon:"Dec", wk:"Sat", year:2026,
+  {id:"bollywood-hiphop-2026-12-05", day:"", mon:"", wk:"", year:2026, /* leave day "" while the date is TBD */
    start:"14:00", end:"16:00", title:"Bollywood Hip Hop", style:"Bollywood × Hip Hop", level:"Beginner / Intermediate",
    time:"Time TBD", place:"Location TBD", address:"San Francisco, CA",
    placeUrl:"", price:25, spots:null, checkout:""}
@@ -468,7 +469,7 @@ const priceText = w => w.price == null ? "Price TBA" : `$${w.price}`;
 const spotsText = w => w.spots == null ? "" : (w.spots <= 0 ? "Sold out" : w.spots <= 5 ? `Only ${w.spots} spots left` : `${w.spots} spots left`);
 $("#wsList").innerHTML = WORKSHOPS.map(w => `
   <article class="ws">
-    <div class="ws-date"><b>${esc(w.day)}</b><span>${esc(w.mon)} · ${esc(w.wk)}</span></div>
+    <div class="ws-date">${w.day ? `<b>${esc(w.day)}</b><span>${esc(w.mon)} · ${esc(w.wk)}</span>` : `<b class="tbd">TBD</b><span>Date</span>`}</div>
     <div class="ws-main">
       <h3>${esc(w.title)}</h3>
       <div class="ws-info"><span>${esc(w.level)}</span><span>${esc(w.time)}</span><span>${w.placeUrl ? `<a href="${esc(w.placeUrl)}">${esc(w.place)}</a>` : esc(w.place)}</span></div>
@@ -485,7 +486,7 @@ function openModal(w){
   lastFocus = document.activeElement;
   $("#mTitle").textContent = w.title;
   $("#mDetails").innerHTML = [
-    ["When", `${w.wk}, ${w.mon} ${Number(w.day)}, ${w.year} · ${w.time}`],
+    ["When", w.day ? `${w.wk}, ${w.mon} ${Number(w.day)}, ${w.year} · ${w.time}` : `Date TBD · ${w.time}`],
     ["Where", `${w.place}<br><span class="dim">${w.address}</span>`],
     ["Level", w.level],
     ["Price", priceText(w) + (spotsText(w) ? ` · ${spotsText(w)}` : "")]
