@@ -519,7 +519,7 @@ $("#wsList").addEventListener("click", e => {
 
 // Mailing list → Google Sheet (via Google Apps Script web app).
 // Paste the web app URL below after deploying apps-script/mailing-list.gs. Leave "" to keep the list closed.
-const MAILING_LIST_URL = "";
+const MAILING_LIST_URL = "https://script.google.com/macros/s/AKfycbxiMkGAo2ad-iVHugREWwgT0QKOBcZi0qWPE_J95OybWj3a6L2kLR2pnKQWZLl3O3fcyg/exec";
 const FALLBACK = `Something went wrong. Follow <a href="https://www.instagram.com/jai.dance/">@jai.dance</a> on Instagram for class dates.`;
 async function saveTo(kind, build){
   if (!MAILING_LIST_URL) throw new Error("not-connected");

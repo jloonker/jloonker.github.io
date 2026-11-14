@@ -2,8 +2,8 @@
  * jai.dance mailing list → Google Sheet
  *
  * Setup:
- * 1. Create a Google Sheet (e.g. "jai.dance mailing list").
- * 2. In the sheet: Extensions → Apps Script. Delete the starter code and paste this whole file. Save.
+ * 1. Create a Google Sheet and put its ID in SPREADSHEET_ID below.
+ * 2. Create an Apps Script project (script.google.com), paste this whole file, and save.
  * 3. Deploy → New deployment → type "Web app".
  *      Execute as: Me
  *      Who has access: Anyone
@@ -13,6 +13,7 @@
  * Each sign-up becomes one row in the "Signups" tab.
  */
 
+const SPREADSHEET_ID = "1aJMnd8_Yg443xAMR1l9b6sxUNLVpxEIW9EzvFrzWjMY"; // "jai.dance mailing list"
 const SHEET_NAME = "Signups";
 const HEADERS = ["Signed up", "Name", "Email", "Based in", "Dance level"];
 const LEVELS = ["New to dance", "Beginner", "Intermediate", "Advanced"];
@@ -49,7 +50,7 @@ function doPost(e) {
 }
 
 function getSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
   if (sheet.getLastRow() === 0) {
@@ -65,4 +66,9 @@ function clean(v, max) {
   let s = String(v == null ? "" : v).trim().slice(0, max);
   if (/^[=+\-@]/.test(s)) s = "'" + s;
   return s;
+}
+
+// Run once from the editor to create the "Signups" tab and approve permissions.
+function setup() {
+  getSheet();
 }
