@@ -436,7 +436,7 @@ const FEATURED = [
       <li>Get an instant confirmation page and an emailed receipt.</li>
     </ol>
     <a class="btn" id="mCheckout" href="#" style="width:100%">Continue to checkout <span class="arr">→</span></a>
-    <p class="note" id="mNote" style="margin-top:16px">Payments are processed securely by Stripe.</p>
+    <p class="note" id="mNote" style="margin-top:16px"><strong>All tickets are non-refundable.</strong> Payments are processed securely by Stripe.</p>
   </div>
 </div>
 
@@ -524,7 +524,7 @@ function openModal(w){
     const u = new URL(w.checkout); u.searchParams.set("client_reference_id", w.id);
     go.href = u.toString(); go.removeAttribute("aria-disabled"); go.classList.remove("off");
     go.innerHTML = `Continue to checkout <span class="arr">→</span>`;
-    $("#mNote").innerHTML = "Payments are processed securely by Stripe.";
+    $("#mNote").innerHTML = "<strong>All tickets are non-refundable.</strong> Payments are processed securely by Stripe.";
   } else {
     go.removeAttribute("href"); go.setAttribute("aria-disabled","true"); go.classList.add("off");
     go.textContent = "Tickets open soon";
