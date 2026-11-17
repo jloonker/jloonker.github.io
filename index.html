@@ -444,11 +444,12 @@ const FEATURED = [
 /* ===== Edit these to update the site ===== */
 const WORKSHOPS = [
   /* checkout: the Stripe Payment Link for this class. Leave "" until it's ready.
-     price / spots: set to null to hide them. */
-  {id:"bollywood-hiphop-2026-12-05", day:"", mon:"", wk:"", year:2026, /* leave day "" while the date is TBD */
-   start:"14:00", end:"16:00", title:"Bollywood Hip Hop", style:"Bollywood × Hip Hop", level:"Beginner / Intermediate",
-   time:"Time TBD", place:"Location TBD", address:"San Francisco, CA",
-   placeUrl:"", price:25, spots:null, checkout:""}
+     price / spots: set to null to hide them. cap: total spots (shown as "Only N spots"; Stripe stops sales at the cap). */
+  {id:"bollywood-hiphop-2026-12-06", day:"06", mon:"Dec", wk:"Sun", year:2026, /* leave day "" while the date is TBD */
+   start:"13:00", end:"15:00", title:"Bollywood Hip Hop", style:"Bollywood × Hip Hop", level:"Beginner / Intermediate",
+   time:"1:00–3:00 PM", place:"Smuin Center for Dance", address:"1830 17th St, San Francisco, CA 94103",
+   placeUrl:"https://www.smuinballet.org/", price:25, spots:null, cap:35,
+   checkout:"https://buy.stripe.com/test_aFacN4eNR4GG05Valp5os01"}
 ];
 /* ========================================== */
 
@@ -493,7 +494,7 @@ window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
 
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 const priceText = w => w.price == null ? "Price TBA" : `$${w.price}`;
-const spotsText = w => w.spots == null ? "" : (w.spots <= 0 ? "Sold out" : w.spots <= 5 ? `Only ${w.spots} spots left` : `${w.spots} spots left`);
+const spotsText = w => w.spots == null ? (w.cap ? `Only ${w.cap} spots` : "") : (w.spots <= 0 ? "Sold out" : w.spots <= 5 ? `Only ${w.spots} spots left` : `${w.spots} spots left`);
 $("#wsList").innerHTML = WORKSHOPS.map(w => `
   <article class="ws">
     <div class="ws-date">${w.day ? `<b>${esc(w.day)}</b><span>${esc(w.mon)} · ${esc(w.wk)}</span>` : `<b class="tbd">TBD</b><span>Date</span>`}</div>
