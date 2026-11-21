@@ -258,15 +258,15 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
 
 <nav id="nav">
   <div class="wrap">
-    <a class="mark" href="#top">jai<span>.</span>dance</a>
+    <a class="mark" href="/" data-section="top">jai<span>.</span>dance</a>
     <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#socials">Socials</a></li>
-      <li><a href="#work">Featured work</a></li>
-      <li><a href="#workshops">Workshops</a></li>
-      <li><a href="#join">Mailing list</a></li>
+      <li><a href="/about" data-section="about">About</a></li>
+      <li><a href="/socials" data-section="socials">Socials</a></li>
+      <li><a href="/work" data-section="work">Featured work</a></li>
+      <li><a href="/workshops" data-section="workshops">Workshops</a></li>
+      <li><a href="/join" data-section="join">Mailing list</a></li>
     </ul>
-    <a class="btn" href="#workshops">Sign up for class</a>
+    <a class="btn" href="/workshops" data-section="workshops">Sign up for class</a>
   </div>
 </nav>
 
@@ -277,8 +277,8 @@ footer{padding:clamp(56px,7vw,96px) 0 32px}
       <div class="label">Dancer · Choreographer</div>
       <h1><span class="line"><span>jai<em>.</em>dance</span></span></h1>
       <div class="hero-ctas">
-        <a class="btn" href="#workshops">Sign up for class <span class="arr">→</span></a>
-        <a class="btn ghost" href="#join">Join the mailing list</a>
+        <a class="btn" href="/workshops" data-section="workshops">Sign up for class <span class="arr">→</span></a>
+        <a class="btn ghost" href="/join" data-section="join">Join the mailing list</a>
       </div>
     </div>
   </div>
@@ -420,7 +420,7 @@ const FEATURED = [
       </div>
     </div>
     <p class="bigmark" aria-hidden="true">jai<span>.</span>dance</p>
-    <div class="foot-base"><span>© <span id="yr"></span> jai.dance</span><a href="#top">Back to top ↑</a></div>
+    <div class="foot-base"><span>© <span id="yr"></span> jai.dance</span><a href="/" data-section="top">Back to top ↑</a></div>
   </div>
 </footer>
 
@@ -573,6 +573,27 @@ $("#listForm").addEventListener("submit", async e => {
       : FALLBACK;
   }
 });
+
+// Clean URLs: nav links go to /about, /workshops, etc. (no #). Scroll in place and update the address bar.
+(() => {
+  const go = (id, smooth) => { const el = document.getElementById(id); if (el) el.scrollIntoView({behavior: smooth ? "smooth" : "auto"}); };
+  document.querySelectorAll("a[data-section]").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault();
+    const id = a.dataset.section;
+    history.pushState({id}, "", id === "top" ? "/" : "/" + id);
+    go(id, true);
+  }));
+  window.addEventListener("popstate", () => go(location.pathname.slice(1) || "top", true));
+  // Arriving from a stub page (e.g. /workshops) or an old #link: jump to that section, then tidy the URL.
+  const q = new URLSearchParams(location.search).get("s");
+  const old = location.hash.slice(1);
+  const id = q || old || location.pathname.replace(/^\/|\/$/g, "");
+  if (id && document.getElementById(id)) {
+    history.replaceState({id}, "", id === "top" ? "/" : "/" + id);
+    window.addEventListener("load", () => go(id, false));
+    go(id, false);
+  }
+})();
 </script>
 </body>
 </html>
