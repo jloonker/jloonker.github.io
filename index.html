@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>jai.dance | Dancer &amp; Choreographer</title>
 <meta name="description" content="Dancer and choreographer. Bollywood × Hip Hop workshops in San Francisco.">
 <link rel="canonical" href="https://jai.dance/">
@@ -419,6 +421,7 @@ const FEATURED = [
             <option>Intermediate</option>
             <option>Advanced</option>
           </select></div>
+        <div style="position:absolute;left:-9999px" aria-hidden="true"><label for="listWebsite">Leave this empty</label><input id="listWebsite" tabindex="-1" autocomplete="off"></div>
       </div>
       <button class="btn" type="submit" style="margin-top:24px">Join the crew <span class="arr">→</span></button>
       <p class="msg" id="listMsg" role="status"></p>
@@ -559,10 +562,10 @@ function openModal(w){
   lastFocus = document.activeElement;
   $("#mTitle").textContent = w.title;
   $("#mDetails").innerHTML = [
-    ["When", w.day ? `${w.wk}, ${w.mon} ${Number(w.day)}, ${w.year} · ${w.time}` : `Date TBD · ${w.time}`],
-    ["Where", `${w.place}<br><span class="dim">${w.address}</span>`],
-    ["Level", w.level],
-    ["Price", priceText(w) + (spotsText(w) ? ` · ${spotsText(w)}` : "")]
+    ["When", esc(w.day ? `${w.wk}, ${w.mon} ${Number(w.day)}, ${w.year} · ${w.time}` : `Date TBD · ${w.time}`)],
+    ["Where", `${esc(w.place)}<br><span class="dim">${esc(w.address)}</span>`],
+    ["Level", esc(w.level)],
+    ["Price", esc(priceText(w) + (spotsText(w) ? ` · ${spotsText(w)}` : ""))]
   ].map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
   const go = $("#mCheckout");
   if (w.checkout) {
@@ -606,9 +609,10 @@ $("#listForm").addEventListener("submit", async e => {
   if (!emailOk(email)) { msg.className = "msg err"; msg.textContent = "Enter a valid email."; return; }
   if (!city) { msg.className = "msg err"; msg.textContent = "Tell us where you're based."; return; }
   if (!level) { msg.className = "msg err"; msg.textContent = "Choose your dance level."; return; }
+  const website = $("#listWebsite").value; // spam trap: people never see it, bots fill it in
   msg.className = "msg"; msg.textContent = "Adding you…";
   try {
-    await saveTo("mailing", () => ({name, email, city, level, at: new Date().toISOString()}));
+    if (!website) await saveTo("mailing", () => ({name, email, city, level, website, at: new Date().toISOString()}));
     msg.className = "msg"; msg.textContent = "You're on the list. See you in class.";
     e.target.reset();
   } catch(err) {

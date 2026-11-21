@@ -23,6 +23,8 @@ function doPost(e) {
   lock.waitLock(10000);
   try {
     const d = JSON.parse(e.postData.contents || "{}");
+    // Spam trap: the hidden "website" field is only ever filled in by bots.
+    if (d.website) return ContentService.createTextOutput("ok");
     const name = clean(d.name, 100);
     const email = clean(d.email, 200);
     const city = clean(d.city, 100);
@@ -33,16 +35,14 @@ function doPost(e) {
     }
 
     const sheet = getSheet();
-    // Skip duplicates: update the existing row instead of adding a new one.
+    // Skip duplicates. Existing rows are never changed, so nobody can
+    // overwrite someone else's details just by typing their email.
     const emails = sheet.getRange(2, 3, Math.max(sheet.getLastRow() - 1, 1), 1).getValues().flat()
       .map(function (v) { return String(v).toLowerCase(); });
-    const i = emails.indexOf(email.toLowerCase());
-    const row = [new Date(), name, email, city, level];
-    if (i >= 0 && sheet.getLastRow() > 1) {
-      sheet.getRange(i + 2, 1, 1, row.length).setValues([row]);
-    } else {
-      sheet.appendRow(row);
+    if (sheet.getLastRow() > 1 && emails.indexOf(email.toLowerCase()) >= 0) {
+      return ContentService.createTextOutput("ok");
     }
+    sheet.appendRow([new Date(), name, email, city, level]);
     return ContentService.createTextOutput("ok");
   } finally {
     lock.releaseLock();
